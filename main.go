@@ -4,12 +4,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync/atomic"
 )
 
+type apiConfig struct {
+	fileserverHits atomic.Int32
+}
+
 func main() {
+	apiCfg := apiConfig{}
+
 	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app/", http.FileServer(http.Dir("./app"))))
+	handleFs := http.StripPrefix("/app/", http.FileServer(http.Dir("./app")))
+	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handleFs))
 	mux.HandleFunc("/healthz", handlerHealthz)
+	mux.HandleFunc("/metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("/reset", apiCfg.handlerReset)
 
 	s := &http.Server{
 		Addr:    ":8080",
@@ -19,3 +29,4 @@ func main() {
 	fmt.Println("Starting server...")
 	log.Fatal(s.ListenAndServe())
 }
+
