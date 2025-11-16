@@ -18,8 +18,8 @@ func main() {
 	handleFs := http.StripPrefix("/app/", http.FileServer(http.Dir("./app")))
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handleFs))
 	mux.HandleFunc("GET /api/healthz", handlerHealthz)
-	mux.HandleFunc("GET /api/metrics", apiCfg.handlerMetrics)
-	mux.HandleFunc("POST /api/reset", apiCfg.handlerReset)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 
 	s := &http.Server{
 		Addr:    ":8080",
@@ -29,4 +29,3 @@ func main() {
 	fmt.Println("Starting server...")
 	log.Fatal(s.ListenAndServe())
 }
-
