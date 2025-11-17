@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
 	"log"
+	"net/http"
 )
 
 func handlerHealthz(w http.ResponseWriter, _ *http.Request) {
@@ -32,7 +32,7 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type returnVals struct {
-		Valid bool `json:"valid,omitempty"`
+		Valid bool   `json:"valid,omitempty"`
 		Error string `json:"error,omitempty"`
 	}
 
@@ -68,4 +68,3 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(dat)
 }
-
