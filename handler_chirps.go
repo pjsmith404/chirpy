@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/pjsmith404/chirpy/internal/database"
 	"net/http"
 	"slices"
 	"strings"
-	"github.com/pjsmith404/chirpy/internal/database"
 	"time"
-	"github.com/google/uuid"
 )
 
 type Chirp struct {
@@ -18,11 +18,9 @@ type Chirp struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-type Chirps []Chirp
-
 func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Body string `json:"body"`
+		Body   string    `json:"body"`
 		UserId uuid.UUID `json:"user_id"`
 	}
 
@@ -81,6 +79,32 @@ func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJson(w, http.StatusOK, jsonChirps)
+}
+
+func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
+	chirpId, err := uuid.Parse(r.PathValue("chirpId"))
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusBadRequest,
+			"Not a valid ID",
+			err,
+		)
+		return
+	}
+
+	chirp, err := cfg.db.GetChirp(r.Context(), chirpId)
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusNotFound,
+			"Chirp not found",
+			err,
+		)
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, Chirp(chirp))
 }
 
 func cleanBody(body string) string {
