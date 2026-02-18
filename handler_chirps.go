@@ -5,15 +5,23 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"github.com/pjsmith404/chirpy/internal/database"
+	"time"
+	"github.com/google/uuid"
 )
 
-func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
+type Chirp struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
+	UserID    uuid.UUID `json:"user_id"`
+}
+
+func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Body string `json:"body"`
-	}
-
-	type returnVals struct {
-		CleanedBody string `json:"cleaned_body"`
+		UserId uuid.UUID `json:"user_id"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -36,9 +44,21 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 
 	cleanedBody := cleanBody(params.Body)
 
-	respondWithJson(w, http.StatusOK, returnVals{
-		CleanedBody: cleanedBody,
-	})
+	chirp, err := cfg.db.CreateChirp(
+		r.Context(),
+		database.CreateChirpParams{cleanedBody, params.UserId},
+	)
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Couldn't create chirp",
+			err,
+		)
+		return
+	}
+
+	respondWithJson(w, http.StatusCreated, Chirp(chirp))
 }
 
 func cleanBody(body string) string {
