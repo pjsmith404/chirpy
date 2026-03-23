@@ -22,4 +22,4 @@ curl -s -X POST --data '{"Body":"this is a loooooooooooooooooooooooooooooooooooo
 echo ""
 curl -s -X POST --data '{"Body":"this is a chirp fornax"}' "$BASE_URL/api/validate_chirp"
 echo ""
-curl -s -X POST --data '{"Email":"pjsmith404@gmail.com"}' "$BASE_URL/api/users"
+curl -s -X POST --data '{"Email":"pjsmith404@gmail.com","Password":"12345678"}' "$BASE_URL/api/users"
