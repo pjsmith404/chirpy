@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"github.com/google/uuid"
-	"net/http"
-	"time"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
+	"net/http"
+	"time"
 )
 
 type User struct {
@@ -18,7 +18,7 @@ type User struct {
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -62,7 +62,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -89,7 +89,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	
+
 	match, err := auth.CheckPasswordHash(params.Password, user.HashedPassword)
 	if err != nil {
 		respondWithError(
@@ -113,4 +113,3 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJson(w, http.StatusOK, User{user.ID, user.CreatedAt, user.UpdatedAt, user.Email})
 }
-
