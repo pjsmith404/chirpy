@@ -7,6 +7,7 @@ import (
 	"github.com/pjsmith404/chirpy/internal/database"
 	"net/http"
 	"time"
+	"fmt"
 )
 
 type User struct {
@@ -14,6 +15,14 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+}
+
+type LoggedInUser struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
+	Token     string    `json:"token"`
 }
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +73,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		ExpiresInSeconds int `json:"expires_in_seconds"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -111,5 +121,32 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJson(w, http.StatusOK, User{user.ID, user.CreatedAt, user.UpdatedAt, user.Email})
+	expiryDuration := "1h"
+	secondsInHour := 3600
+	if params.ExpiresInSeconds == 0 && params.ExpiresInSeconds < secondsInHour {
+		expiryDuration = fmt.Sprintf(`%vs`, params.ExpiresInSeconds)
+	}
+	expiresIn, err := time.ParseDuration(expiryDuration)
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Failed to parse expires_in_seconds",
+			err,
+		)
+		return
+	}
+	
+	jwt, err := auth.MakeJWT(user.ID, cfg.jwtSecret, expiresIn)
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Failed to generate token",
+			err,
+		)
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, LoggedInUser{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, jwt})
 }
