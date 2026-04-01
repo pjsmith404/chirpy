@@ -15,11 +15,13 @@ import (
 type apiConfig struct {
 	db             *database.Queries
 	fileserverHits atomic.Int32
+	jwtSecret      string
 }
 
 func main() {
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
+	jwtSecret := os.Getenv("JWT_SECRET")
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error connecting to DB: %v", err)
@@ -29,7 +31,8 @@ func main() {
 	dbQueries := database.New(db)
 
 	apiCfg := apiConfig{
-		db: dbQueries,
+		db:        dbQueries,
+		jwtSecret: jwtSecret,
 	}
 
 	mux := http.NewServeMux()
