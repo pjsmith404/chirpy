@@ -123,9 +123,10 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 
 	expiryDuration := "1h"
 	secondsInHour := 3600
-	if params.ExpiresInSeconds == 0 && params.ExpiresInSeconds < secondsInHour {
+	if params.ExpiresInSeconds > 0 && params.ExpiresInSeconds < secondsInHour {
 		expiryDuration = fmt.Sprintf(`%vs`, params.ExpiresInSeconds)
 	}
+
 	expiresIn, err := time.ParseDuration(expiryDuration)
 	if err != nil {
 		respondWithError(
