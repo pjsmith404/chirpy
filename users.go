@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
 	"net/http"
 	"time"
-	"fmt"
 )
 
 type User struct {
@@ -71,9 +71,9 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		ExpiresInSeconds int `json:"expires_in_seconds"`
+		Email            string `json:"email"`
+		Password         string `json:"password"`
+		ExpiresInSeconds int    `json:"expires_in_seconds"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -136,7 +136,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	
+
 	jwt, err := auth.MakeJWT(user.ID, cfg.jwtSecret, expiresIn)
 	if err != nil {
 		respondWithError(
