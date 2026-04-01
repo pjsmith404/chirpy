@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 	"testing"
 	"time"
+	"net/http"
+	"strings"
 )
 
 func TestJWT(t *testing.T) {
@@ -30,6 +32,33 @@ func TestJWT(t *testing.T) {
 
 	if userID != validatedUserID {
 		t.Errorf(`ValidateJWT(tokenString, tokenSecret) = %q, want %q`, validatedUserID, userID)
+	}
+}
+
+func TestGetBearerToken(t *testing.T) {
+	userID := uuid.New()
+	tokenSecret := "1234567890"
+	expiresIn, err := time.ParseDuration("10s")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jwt, err := MakeJWT(userID, tokenSecret, expiresIn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	headers := http.Header{}
+	bearer := strings.Join([]string{"Bearer", jwt}, " ")
+	headers.Add("Authorization", bearer)
+
+	bearerToken, err := GetBearerToken(headers)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bearerToken != jwt {
+		t.Errorf(`GetBearerToken(headers) = %q, want %q`, bearerToken, jwt)
 	}
 }
 

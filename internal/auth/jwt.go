@@ -5,6 +5,8 @@ import (
 	"github.com/google/uuid"
 	"time"
 	"fmt"
+	"net/http"
+	"strings"
 )
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error)  {
@@ -53,5 +55,17 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return userID, nil	
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	bearerToken := headers.Get("Authorization")
+
+	if bearerToken == "" {
+		return "", fmt.Errorf("No token found in Authorization header")
+	}
+
+	bearerToken = strings.TrimPrefix(bearerToken, "Bearer ")
+
+	return bearerToken, nil
 }
 
