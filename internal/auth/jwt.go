@@ -6,6 +6,8 @@ import (
 	"time"
 	"fmt"
 	"net/http"
+	"crypto/rand"
+	"encoding/hex"
 	"strings"
 )
 
@@ -67,5 +69,12 @@ func GetBearerToken(headers http.Header) (string, error) {
 	bearerToken = strings.TrimPrefix(bearerToken, "Bearer ")
 
 	return bearerToken, nil
+}
+
+func MakeRefreshToken() string {
+	data := make([]byte, 32)
+	rand.Read(data)
+	refreshToken := hex.EncodeToString(data)
+	return refreshToken
 }
 

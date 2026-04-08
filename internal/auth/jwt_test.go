@@ -62,3 +62,11 @@ func TestGetBearerToken(t *testing.T) {
 	}
 }
 
+func TestMakeRefreshToken(t *testing.T) {
+	refreshToken := MakeRefreshToken()
+
+	if len(refreshToken) != 64 {
+		t.Errorf(`MakeRefreshToken() = %v, want a 64 char string`, refreshToken)
+	}
+}
+
