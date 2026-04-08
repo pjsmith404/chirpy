@@ -1,8 +1,8 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
@@ -18,11 +18,12 @@ type User struct {
 }
 
 type LoggedInUser struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
-	Token     string    `json:"token"`
+	ID           uuid.UUID `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Email        string    `json:"email"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 }
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -71,9 +72,8 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email            string `json:"email"`
-		Password         string `json:"password"`
-		ExpiresInSeconds int    `json:"expires_in_seconds"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -122,17 +122,12 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expiryDuration := "1h"
-	secondsInHour := 3600
-	if params.ExpiresInSeconds > 0 && params.ExpiresInSeconds < secondsInHour {
-		expiryDuration = fmt.Sprintf(`%vs`, params.ExpiresInSeconds)
-	}
-
 	expiresIn, err := time.ParseDuration(expiryDuration)
 	if err != nil {
 		respondWithError(
 			w,
 			http.StatusInternalServerError,
-			"Failed to parse expires_in_seconds",
+			"Failed to parse duration",
 			err,
 		)
 		return
@@ -149,5 +144,24 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJson(w, http.StatusOK, LoggedInUser{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, jwt})
+	refreshToken := auth.MakeRefreshToken()
+	now := time.Now()
+	refreshTokenExpiry := now.Add(time.Hour * 24 * 60)
+	refreshTokenParams := database.CreateRefreshTokenParams{
+		refreshToken,
+		user.ID,
+		sql.NullTime{refreshTokenExpiry, true},
+	}
+	_, err = cfg.db.CreateRefreshToken(r.Context(), refreshTokenParams)
+	if err != nil {
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Failed to create refresh token",
+			err,
+		)
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, LoggedInUser{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, jwt, refreshToken})
 }
