@@ -121,19 +121,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiryDuration := "1h"
-	expiresIn, err := time.ParseDuration(expiryDuration)
-	if err != nil {
-		respondWithError(
-			w,
-			http.StatusInternalServerError,
-			"Failed to parse duration",
-			err,
-		)
-		return
-	}
-
-	jwt, err := auth.MakeJWT(user.ID, cfg.jwtSecret, expiresIn)
+	jwt, err := auth.MakeJWT(user.ID, cfg.jwtSecret)
 	if err != nil {
 		respondWithError(
 			w,

@@ -11,7 +11,13 @@ import (
 	"strings"
 )
 
-func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error)  {
+func MakeJWT(userID uuid.UUID, tokenSecret string) (string, error)  {
+	expiryDuration := "1h"
+	expiresIn, err := time.ParseDuration(expiryDuration)
+	if err != nil {
+		return "", err
+	}
+
 	now := time.Now()
 	claims := &jwt.RegisteredClaims{
 		Issuer: "chirpy-access",
