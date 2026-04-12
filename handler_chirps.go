@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"fmt"
 )
 
 type Chirp struct {
@@ -55,7 +56,7 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 			w,
 			http.StatusUnauthorized,
 			"Failed to validate JWT",
-			err,
+			fmt.Errorf(`Failed to validate JWT: %v`, err),
 		)
 		return
 	}
