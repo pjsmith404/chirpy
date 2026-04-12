@@ -25,6 +25,12 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
+	type response struct {
+		User
+		Token string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -100,5 +106,14 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJson(w, http.StatusOK, LoggedInUser{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, jwt, refreshToken})
+	respondWithJson(w, http.StatusOK, response{
+		User: User{
+			user.ID,
+			user.CreatedAt,
+			user.UpdatedAt,
+			user.Email,
+		},
+		Token: jwt,
+		RefreshToken: refreshToken,
+	})
 }

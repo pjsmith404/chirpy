@@ -22,6 +22,10 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		Password string `json:"password"`
 	}
 
+	type response struct {
+		User
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -57,6 +61,13 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	respondWithJson(w, http.StatusCreated, User(user))
+	respondWithJson(w, http.StatusCreated, response{
+		User: User{
+			ID: user.ID,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			Email: user.Email,
+		},
+	})
 }
 
