@@ -1,16 +1,16 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/pjsmith404/chirpy/internal/auth"
+	"net/http"
 )
 
 func (cfg *apiConfig) handlerPolkaWebhooks(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Event string `json:"event"`
-		Data struct {
+		Data  struct {
 			UserID uuid.UUID `json:"user_id"`
 		} `json:"data"`
 	}
@@ -47,4 +47,3 @@ func (cfg *apiConfig) handlerPolkaWebhooks(w http.ResponseWriter, r *http.Reques
 
 	w.WriteHeader(http.StatusNoContent)
 }
-
