@@ -3,7 +3,6 @@ package auth
 import (
 	"github.com/google/uuid"
 	"testing"
-	"time"
 	"net/http"
 	"strings"
 )
@@ -11,12 +10,8 @@ import (
 func TestJWT(t *testing.T) {
 	userID := uuid.New()
 	tokenSecret := "1234567890"
-	expiresIn, err := time.ParseDuration("10s")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	jwt, err := MakeJWT(userID, tokenSecret, expiresIn)
+	jwt, err := MakeJWT(userID, tokenSecret)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,12 +33,8 @@ func TestJWT(t *testing.T) {
 func TestGetBearerToken(t *testing.T) {
 	userID := uuid.New()
 	tokenSecret := "1234567890"
-	expiresIn, err := time.ParseDuration("10s")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	jwt, err := MakeJWT(userID, tokenSecret, expiresIn)
+	jwt, err := MakeJWT(userID, tokenSecret)
 	if err != nil {
 		t.Fatal(err)
 	}
