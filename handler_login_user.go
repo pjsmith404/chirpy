@@ -3,21 +3,11 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/google/uuid"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
 	"net/http"
 	"time"
 )
-
-type LoggedInUser struct {
-	ID           uuid.UUID `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Email        string    `json:"email"`
-	Token        string    `json:"token"`
-	RefreshToken string    `json:"refresh_token"`
-}
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
@@ -112,6 +102,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 			user.CreatedAt,
 			user.UpdatedAt,
 			user.Email,
+			user.IsChirpyRed,
 		},
 		Token:        jwt,
 		RefreshToken: refreshToken,

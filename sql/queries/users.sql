@@ -7,13 +7,13 @@ VALUES (
 	$1,
 	$2
 )
-RETURNING id, created_at, updated_at, email;
+RETURNING *;
 
 -- name: DeleteUsers :exec
 DELETE FROM users;
 
 -- name: GetUserByEmail :one
-SELECT id, created_at, updated_at, email, hashed_password
+SELECT id, created_at, updated_at, email, is_chirpy_red, hashed_password
 FROM users
 WHERE email = $1
 LIMIT 1;
