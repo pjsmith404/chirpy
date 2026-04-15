@@ -1,16 +1,16 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
+	"net/http"
 )
 
 func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -52,7 +52,7 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 		)
 		return
 	}
-	
+
 	hash, err := auth.HashPassword(params.Password)
 	if err != nil {
 		respondWithError(
@@ -77,10 +77,10 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request) 
 
 	respondWithJson(w, http.StatusOK, response{
 		User: User{
-			ID: user.ID,
+			ID:        user.ID,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
-			Email: user.Email,
+			Email:     user.Email,
 		},
 	})
 }

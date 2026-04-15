@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/pjsmith404/chirpy/internal/auth"
 	"github.com/pjsmith404/chirpy/internal/database"
@@ -9,7 +10,6 @@ import (
 	"slices"
 	"strings"
 	"time"
-	"fmt"
 )
 
 type Chirp struct {

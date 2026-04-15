@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"github.com/pjsmith404/chirpy/internal/auth"
+	"net/http"
 )
 
 func (cfg *apiConfig) handlerRevokeToken(w http.ResponseWriter, r *http.Request) {
