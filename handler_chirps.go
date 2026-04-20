@@ -86,7 +86,20 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
-	chirps, err := cfg.db.GetChirps(r.Context())
+	authorId := r.URL.Query().Get("author_id")
+
+	var chirps []database.Chirp
+	var err error
+	if authorId != "" {
+		parsedAuthorId, err := uuid.Parse(authorId)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Not a valid UUID", err)
+			return
+		}
+		chirps, err = cfg.db.GetChirpsByAuthor(r.Context(), parsedAuthorId)
+	} else {
+		chirps, err = cfg.db.GetChirps(r.Context())
+	}
 	if err != nil {
 		respondWithError(
 			w,
